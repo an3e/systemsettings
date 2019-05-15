@@ -52,8 +52,6 @@ Plug 'tpope/vim-sensible'               " a universal set of defaults
 " look & feel
 Plug 'itchyny/lightline.vim'            " configurable statusline
 Plug 'mhinz/vim-startify'               " nice welcome screen
-Plug 'sheerun/vim-polyglot'             " syntax highliting for many languages
-Plug 'Yggdroot/indentLine'              " show indentation levels
 " themes
 Plug 'altercation/vim-colors-solarized'
 Plug 'chriskempson/vim-tomorrow-theme'
@@ -80,10 +78,14 @@ Plug 'majutsushi/tagbar'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
 
-" faster editing
+" make code editing faster
 Plug 'inside/vim-search-pulse'
-Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
+Plug 'ntpeters/vim-better-whitespace'   " colorize trailing whitespaces
+Plug 'sheerun/vim-polyglot'             " syntax highliting for many languages
+Plug 'shime/vim-livedown'
 Plug 'terryma/vim-multiple-cursors'     " need to figure out how it works
+Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clang-completer' }
+Plug 'Yggdroot/indentLine'              " show indentation levels
 
 call plug#end()
 
@@ -99,6 +101,19 @@ if (has("termguicolors"))
 endif
 let g:onedark_termcolors = 256
 let g:onedark_terminal_italics = 1
+" onedark.vim override: Don't set a background color when running in a terminal;
+" just use the terminal's background color
+" `gui` is the hex color code used in GUI mode/nvim true-color mode
+" `cterm` is the color code used in 256-color mode
+" `cterm16` is the color code used in 16-color mode
+if (has("autocmd") && !has("gui_running"))
+    augroup colorset
+        autocmd!
+        let s:white = { "gui": "#ABB2BF", "cterm": "145", "cterm16" : "7" }
+        " `bg` will not be styled since there is no `bg` setting
+        autocmd ColorScheme * call onedark#set_highlight("Normal", { "fg": s:white })
+    augroup END
+endif
 colorscheme onedark
 "
 " plugin 'lightline'
@@ -134,11 +149,16 @@ augroup GutentagsLightlineRefresher
     autocmd User GutentagsUpdated call lightline#update()
 augroup END
 "
+" plugin 'vim-better-whitespaces'
+let g:better_whitespace_enabled=1
+let g:strip_whitespace_on_save=1
+"
 " plugin 'YouCompleteMe'
 let g:ycm_autoclose_preview_window_after_completion = 1
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_enable_diagnostic_highlighting = 0
+let g:ycm_goto_buffer_command = 'split-or-existing-window'
 "
 " plugin 'fzf'
 let $FZF_DEFAULT_COMMAND = 'ag --hidden --ignore .git -l -g ""'
@@ -173,8 +193,8 @@ nnoremap <S-F3> <C-t>
 inoremap <S-F3> <C-o><C-t>
 
 " YouCompleteMe plugin
-nnoremap <F4>        :YcmCompleter GoTo            <CR>
-inoremap <F4>   <C-o>:YcmCompleter GoTo            <CR>
+nnoremap <F4>        :leftabove vertical YcmCompleter GoTo<CR>
+inoremap <F4>   <C-o>:leftabove vertical YcmCompleter GoTo<CR>
 nnoremap <S-F4>      :YcmCompleter GoToImprecise   <CR>
 inoremap <S-F4> <C-o>:YcmCompleter GoToImprecise   <CR>
 nnoremap <F5>        :YcmForceCompileAndDiagnostics<CR>
@@ -217,12 +237,12 @@ inoremap <C-l> <C-o><C-w><C-l>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "                             leader key shortcuts
 " Remap leader key
-let mapleader = ";"
+let mapleader = ","
 "
 " plugin 'fzf'
 nnoremap <leader>fa :Ag<CR>
-nnoremap <leader>fc :Colors<CR>
 nnoremap <leader>fb :Buffers<CR>
+nnoremap <leader>fc :Colors<CR>
 nnoremap <leader>ff :Files<CR>
 "
 " plugin vim-fugitive
@@ -240,6 +260,12 @@ nnoremap <leader>gep :YcmCompleter GetParent<CR>
 nnoremap <leader>gtc :YcmCompleter GoToDeclaration<CR>
 nnoremap <leader>gtf :YcmCompleter GoToDefinition<CR>
 nnoremap <leader>gth :YcmCompleter GoToHeader<CR>
+"
+nnoremap <leader>ldt :LivedownToggle<CR>
+"
+" use 'i' & 'o' to move between tabs in a way similar to moving between jumps (<Ctrl-io>)
+nnoremap <leader>i :tabnext<CR>
+nnoremap <leader>o :tabprevious<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
